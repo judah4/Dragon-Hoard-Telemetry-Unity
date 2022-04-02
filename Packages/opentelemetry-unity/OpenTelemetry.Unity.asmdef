@@ -1,3 +1,14 @@
 {
-	"name": "OpenTelemetry.Unity"
+    "name": "OpenTelemetry.Unity",
+    "rootNamespace": "OpenTelemetry.Unity",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
