@@ -2,17 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TelemetrySpan : MonoBehaviour
-{
-    // Start is called before the first frame update
-    void Start()
+namespace OpenTelemetry.Unity
+{ 
+    public class TelemetrySpan
     {
-        
-    }
+        public string Name { get; }
+        public SpanContext SpanContext { get; }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        public TelemetrySpan ParentSpan { get; }
+        public SpanKind SpanKind { get; }
+        public Timestamp Start { get; }
+        public Timestamp End { get; }
+
+        public List<SpanAttr> Attributes { get; }
+        public List<Link> Links { get; }
+        public List<SpanEvent> Events { get; }
+        public SpanStatus Status { get; }
+
     }
 }
