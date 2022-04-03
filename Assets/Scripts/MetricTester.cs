@@ -22,13 +22,21 @@ namespace OpenTelemetry.Unity.Examples
 
         public void Init()
         {
+            var exporter = new DebugExporter();
             var tracerProvider = new TracerProvider();
 
             var tracer = tracerProvider.GetTracer(nameof(MetricTester));
 
             var span = tracer.GetSpan("Test Span");
+            span.Attributes.Add("foo", "bar");
+
+            var span2 = tracer.GetSpan("Another Span", span.SpanContext);
+            span2.Events.Add(SpanEvent.Create("Wow, event", Timestamp.Create()));
+            span2.SetEnd();
 
             span.SetEnd();
+
+            exporter.WriteTracer(tracer);
 
             //print?
         }

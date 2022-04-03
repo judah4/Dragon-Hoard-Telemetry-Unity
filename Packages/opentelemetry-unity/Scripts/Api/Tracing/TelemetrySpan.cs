@@ -38,6 +38,11 @@ namespace OpenTelemetry.Unity
             };
             return timestamp;
         }
+
+        public override string ToString()
+        {
+            return Time.ToString();
+        }
     }
 
     public class TelemetrySpan

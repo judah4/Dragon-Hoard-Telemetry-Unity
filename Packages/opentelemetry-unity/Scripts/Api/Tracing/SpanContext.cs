@@ -75,7 +75,6 @@ namespace OpenTelemetry.Unity
             traceId._id[5] = guid[9];
             traceId._id[6] = guid[10];
             traceId._id[7] = guid[12];
-            traceId._id[8] = guid[13];
             return traceId;
         }
 

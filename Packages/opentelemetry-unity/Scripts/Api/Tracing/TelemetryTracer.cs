@@ -12,10 +12,13 @@ namespace OpenTelemetry.Unity
 
         public TraceId TraceId { get; }
 
+        public List<TelemetrySpan> Spans { get; }
+
         public TelemetryTracer(string name)
         {
             Name = name;
             TraceId = TraceId.Create();
+            Spans = new List<TelemetrySpan>();
         }
 
 
@@ -48,6 +51,8 @@ namespace OpenTelemetry.Unity
 
             var span = TelemetrySpan.Create(name, SpanContext.Create(SpanId.Create(), TraceId, 0), parent, spanKind, attributes,
                 links, timestamp.Value );
+
+            Spans.Add(span);
 
             return span;
         }
