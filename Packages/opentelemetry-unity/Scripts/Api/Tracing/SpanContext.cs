@@ -7,15 +7,24 @@ namespace OpenTelemetry.Unity
 {
     public struct TraceId : IEqualityComparer<TraceId>
     {
-        uint _id;
+        byte[] _id;
 
         public static TraceId Create()
         {
             var traceId = new TraceId()
             {
-                _id = (uint)(Random.value * uint.MaxValue),
+                _id = System.Guid.NewGuid().ToByteArray(),
             };
             return traceId;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if((obj is TraceId) == false)
+                return false;
+            var traceId = (TraceId)obj;
+
+            return Equals(this, traceId);
         }
 
         public bool Equals(TraceId x, TraceId y)
@@ -23,14 +32,19 @@ namespace OpenTelemetry.Unity
             return x._id == y._id;
         }
 
+        public override int GetHashCode()
+        {
+            return System.BitConverter.ToString(_id).GetHashCode();
+        }
+
         public int GetHashCode(TraceId obj)
         {
-            return (int)_id;
+            return System.BitConverter.ToString(obj._id).GetHashCode();
         }
 
         public override string ToString()
         {
-            return _id.ToString("X8");
+            return System.BitConverter.ToString(_id, 0).Replace("-", "");
         }
 
         public static bool operator ==(TraceId a, TraceId b)
@@ -38,16 +52,40 @@ namespace OpenTelemetry.Unity
         public static bool operator !=(TraceId a, TraceId b)
         => !a.Equals(b);
     }
+
     public struct SpanId : IEqualityComparer<SpanId>
     {
-        ushort _id;
+        byte[] _id;
+
         public static SpanId Create()
         {
-            var id = new SpanId()
+            var traceId = new SpanId()
             {
-                _id = (ushort)(Random.value * ushort.MaxValue),
+                _id = new byte[8],
             };
-            return id;
+
+            var guid = System.Guid.NewGuid().ToByteArray();
+
+            //make this generation better
+            traceId._id[0] = guid[0];
+            traceId._id[1] = guid[1];
+            traceId._id[2] = guid[2];
+            traceId._id[3] = guid[3];
+            traceId._id[4] = guid[8];
+            traceId._id[5] = guid[9];
+            traceId._id[6] = guid[10];
+            traceId._id[7] = guid[12];
+            traceId._id[8] = guid[13];
+            return traceId;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if ((obj is SpanId) == false)
+                return false;
+            var traceId = (SpanId)obj;
+
+            return Equals(this, traceId);
         }
 
         public bool Equals(SpanId x, SpanId y)
@@ -55,26 +93,47 @@ namespace OpenTelemetry.Unity
             return x._id == y._id;
         }
 
+        public override int GetHashCode()
+        {
+            return System.BitConverter.ToString(_id).GetHashCode();
+        }
+
         public int GetHashCode(SpanId obj)
         {
-            return _id;
+            return System.BitConverter.ToString(_id).GetHashCode();
         }
 
         public override string ToString()
         {
-            return _id.ToString("X8");
+            return System.BitConverter.ToString(_id, 0).Replace("-", "");
         }
+
+        public static bool operator == (SpanId a, SpanId b)
+        => a.Equals(b);
+        public static bool operator != (SpanId a, SpanId b)
+        => !a.Equals(b);
     }
 
     public struct SpanContext
     {
-        public SpanId SpanId { get; }
+        public SpanId SpanId { get; private set; }
 
-        public TraceId TraceId { get; }
+        public TraceId TraceId { get; private set; }
 
-        public byte Flags { get; }
+        public byte Flags { get; private set; }
 
-        public TraceState TraceState { get; }
+        //public TraceState TraceState { get; }
+
+        public static SpanContext Create(SpanId spanId, TraceId traceId, byte flags)
+        {
+            var context = new SpanContext()
+            {
+                SpanId = spanId,
+                TraceId = traceId,
+                Flags = flags,
+            };
+            return context;
+        }
 
         public bool IsValid()
         {

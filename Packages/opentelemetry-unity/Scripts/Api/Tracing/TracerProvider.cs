@@ -17,10 +17,8 @@ namespace OpenTelemetry.Unity
                 name = "OpenTelemetryUnity";
             }
 
-            var tracer = new TelemetryTracer()
-            {
-                Name = name,
-            }
+            var tracer = new TelemetryTracer(name);
+            return tracer;
         }
     }
 
