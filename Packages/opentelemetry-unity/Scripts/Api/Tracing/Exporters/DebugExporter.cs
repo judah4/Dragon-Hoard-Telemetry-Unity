@@ -5,11 +5,10 @@ using UnityEngine;
 
 namespace OpenTelemetry.Unity
 {
-    public class DebugExporter
-    {
-        
+    public class DebugExporter : BaseExporter
+    {     
 
-        public void WriteTracer(TelemetryTracer tracer)
+        public override void WriteTracer(TelemetryTracer tracer)
         {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.AppendLine($"Trace:{tracer.Name} - Id:{tracer.TraceId}");

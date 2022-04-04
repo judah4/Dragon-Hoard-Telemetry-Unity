@@ -8,15 +8,18 @@ namespace OpenTelemetry.Unity
 
     public class TelemetryTracer
     {
+        private TracerProvider _tracerProvider;
+
         public string Name { get; }
 
         public TraceId TraceId { get; }
 
         public List<TelemetrySpan> Spans { get; }
 
-        public TelemetryTracer(string name)
+        internal TelemetryTracer(string name, TracerProvider tracerProvider)
         {
             Name = name;
+            _tracerProvider = tracerProvider;
             TraceId = TraceId.Create();
             Spans = new List<TelemetrySpan>();
         }
@@ -50,7 +53,7 @@ namespace OpenTelemetry.Unity
                 links = new List<SpanLink>();
 
             var span = TelemetrySpan.Create(name, SpanContext.Create(SpanId.Create(), TraceId, 0), parent, spanKind, attributes,
-                links, timestamp.Value );
+                links, timestamp.Value, this, _tracerProvider );
 
             Spans.Add(span);
 

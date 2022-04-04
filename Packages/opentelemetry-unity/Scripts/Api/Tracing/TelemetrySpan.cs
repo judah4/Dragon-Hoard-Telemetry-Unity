@@ -47,6 +47,11 @@ namespace OpenTelemetry.Unity
 
     public class TelemetrySpan
     {
+        TelemetryTracer _tracer;
+        TracerProvider _tracerProvider;
+
+        internal TelemetryTracer Tracer => _tracer;
+
         public string Name { get; private set; }
         public SpanContext SpanContext { get; private set; }
 
@@ -61,7 +66,7 @@ namespace OpenTelemetry.Unity
         public SpanStatus Status { get; private set; }
 
         public static TelemetrySpan Create(string name, SpanContext context, SpanContext? parent, SpanKind spanKind,
-            Dictionary<string, object> attributes, List<SpanLink> links, Timestamp start)
+            Dictionary<string, object> attributes, List<SpanLink> links, Timestamp start, TelemetryTracer tracer, TracerProvider tracerProvider)
         {
             var ev = new TelemetrySpan()
             {
@@ -74,6 +79,8 @@ namespace OpenTelemetry.Unity
                 Start = start,
                 Events = new List<SpanEvent>(),
                 Status = SpanStatus.Unset,
+                _tracer = tracer,
+                _tracerProvider = tracerProvider,
             };
             return ev;
         }
@@ -83,6 +90,13 @@ namespace OpenTelemetry.Unity
             if(End.HasValue)
                 return;
             End = Timestamp.Create();
+
+            _tracerProvider.EndSpan(this);
+        }
+
+        internal void SetStatus(SpanStatus status)
+        {
+            Status = status;
         }
     }
 
