@@ -6,30 +6,38 @@ using UnityEngine;
 namespace OpenTelemetry.Unity
 {
     public class DebugExporter : BaseExporter
-    {     
-
-        public override void WriteTracer(TelemetryTracer tracer)
+    {
+        public override void Export(List<TelemetrySpan> spans)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine($"Trace:{tracer.Name} - Id:{tracer.TraceId}");
 
-            for(int cnt = 0; cnt < tracer.Spans.Count; cnt++)
+            for (int cnt = 0; cnt < spans.Count; cnt++)
             {
-                WriteSpan(stringBuilder, tracer.Spans[cnt]);
+                WriteSpan(stringBuilder, spans[cnt]);
             }
 
             Debug.Log(stringBuilder.ToString());
         }
 
+        public override void ForceFlush()
+        {
+            return;
+        }
+
+        public override void Shutdown()
+        {
+            return;
+        }
+
         void WriteSpan(StringBuilder stringBuilder, TelemetrySpan span)
         {
-            stringBuilder.AppendLine($"Span:{span.Name} - Id:{span.SpanContext.SpanId}");
+            stringBuilder.AppendLine($"Span:{span.Name} - TraceId:{span.SpanContext.TraceId}, Id:{span.SpanContext.SpanId}");
             if(span.ParentSpan.HasValue)
             {
                 stringBuilder.AppendLine($"ParentId:{span.ParentSpan.Value.SpanId}");
             }
-            stringBuilder.AppendLine($"Start:{span.Start}");
-            stringBuilder.AppendLine($"End:{span.End}");
+            stringBuilder.AppendLine($"Start:{span.StartTime}");
+            stringBuilder.AppendLine($"End:{span.StartTime}");
             for(int cnt = 0; cnt < span.Events.Count; cnt++) 
             {
                 var ev = span.Events[cnt];
