@@ -52,6 +52,12 @@ namespace OpenTelemetry.Unity
             if(links == null)
                 links = new List<SpanLink>();
 
+            if(parent.HasValue && parent.Value.TraceId != TraceId)
+            {
+                //log warning
+                parent = null;
+            }
+
             var span = TelemetrySpan.Create(name, SpanContext.Create(SpanId.Create(), TraceId, 0), parent, spanKind, attributes,
                 links, timestamp.Value, this, _tracerProvider );
 

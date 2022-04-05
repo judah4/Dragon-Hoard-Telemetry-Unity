@@ -37,7 +37,7 @@ namespace OpenTelemetry.Unity
                 stringBuilder.AppendLine($"ParentId:{span.ParentSpan.Value.SpanId}");
             }
             stringBuilder.AppendLine($"Start:{span.StartTime}");
-            stringBuilder.AppendLine($"End:{span.StartTime}");
+            stringBuilder.AppendLine($"End:{span.EndTime}");
             for(int cnt = 0; cnt < span.Events.Count; cnt++) 
             {
                 var ev = span.Events[cnt];
