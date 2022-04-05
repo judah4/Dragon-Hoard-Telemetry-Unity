@@ -50,6 +50,7 @@ namespace OpenTelemetry.Unity
         public bool WriteToApi { get; set; }
         public string ApiUrl { get; set; }
         public string AuthHeader { get; set; }
+        public bool PrivacyOptOut { get; set; }
     }
 
     public class JsonExporter : BaseExporter
@@ -127,7 +128,7 @@ namespace OpenTelemetry.Unity
         }
         private void WriteToApi(SpansExport exports)
         {
-            if (string.IsNullOrEmpty(_options.ApiUrl))
+            if (_options.PrivacyOptOut || string.IsNullOrEmpty(_options.ApiUrl))
                 return;
 
             _provider.StartCoroutine(SendToApi(exports));
