@@ -2,49 +2,228 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace OpenTelemetry.Unity
 {
-    public class JsonExporter
+    [System.Serializable]
+    public class SpansExport
     {
+        public List<SpanExport> Spans;
+    }
 
-        public void WriteTracer(TelemetryTracer tracer)
+    [System.Serializable]
+    public struct SpanExport
+    {
+        public string TraceId;
+        public string SpanId;
+        public string Name;
+        public string ParentId;
+        public long StartTime;
+        public long EndTime;
+
+        public List<AttributeExport> Attributes;
+        public List<EventExport> Events;
+    }
+
+    [System.Serializable]
+    public struct EventExport
+    {
+        public string Name;
+        public long Timestamp;
+        public List<AttributeExport> Attributes;
+
+    }
+
+    [System.Serializable]
+    public struct AttributeExport
+    {
+        public string Key;
+        public string Value;
+
+    }
+
+    public class JsonExporterOptions
+    {
+        public bool WriteToFile { get; set; }
+        public string FileName { get; set; } = $"exports/spanexports{System.DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm-ss")}.json";
+        public bool WriteToApi { get; set; }
+        public string ApiUrl { get; set; }
+        public string AuthHeader { get; set; }
+    }
+
+    public class JsonExporter : BaseExporter
+    {
+        private JsonExporterOptions _options;
+
+        public JsonExporter(JsonExporterOptions options = null)
         {
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine($"Trace:{tracer.Name} - Id:{tracer.TraceId}");
-
-            for (int cnt = 0; cnt < tracer.Spans.Count; cnt++)
+            if(options == null)
             {
-                WriteSpan(stringBuilder, tracer.Spans[cnt]);
+                options = new JsonExporterOptions()
+                {
+                    WriteToFile = true,
+                };
             }
-
-            Debug.Log(stringBuilder.ToString());
+            _options = options;
         }
 
-        void WriteSpan(StringBuilder stringBuilder, TelemetrySpan span)
+        public override void Export(List<TelemetrySpan> spans)
         {
-            stringBuilder.AppendLine($"Span:{span.Name} - Id:{span.SpanContext.SpanId}");
-            if (span.ParentSpan.HasValue)
+            var exports = new SpansExport()
             {
-                stringBuilder.AppendLine($"ParentId:{span.ParentSpan.Value.SpanId}");
+                Spans = new List<SpanExport>(),
+            };
+        
+            for (int cnt = 0; cnt < spans.Count; cnt++)
+            {
+                var export = SpanToExport(spans[cnt]);
+                if(export.HasValue == false)
+                    continue;
+
+                exports.Spans.Add(export.Value);
+
             }
-            stringBuilder.AppendLine($"Start:{span.Start}");
-            stringBuilder.AppendLine($"End:{span.End}");
+
+            if(_options.WriteToFile)
+            {
+                WriteToFile(exports);
+            }
+            if (_options.WriteToApi)
+            {
+                WriteToApi(exports);
+            }
+
+            //var data = JsonUtility.ToJson(exports, true);
+            //Debug.Log(data);
+        }
+
+        private void WriteToFile(SpansExport exports)
+        {
+
+            try
+            {
+                if (string.IsNullOrEmpty(_options.FileName))
+                    return;
+
+                var fullPath = System.IO.Path.Combine(Application.persistentDataPath, _options.FileName);
+                var subPath = System.IO.Path.GetDirectoryName(fullPath);
+                System.IO.Directory.CreateDirectory(subPath);
+
+                foreach(var span in exports.Spans)
+                {
+                    var data = JsonUtility.ToJson(span);
+                    using (var writer = System.IO.File.AppendText(fullPath))
+                    {
+                        writer.WriteLine(data);
+                    }
+                }
+
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogException(e);
+            }
+        }
+        private void WriteToApi(SpansExport exports)
+        {
+            if (string.IsNullOrEmpty(_options.ApiUrl))
+                return;
+
+            _provider.StartCoroutine(SendToApi(exports));
+        }
+
+        IEnumerator SendToApi(SpansExport exports)
+        {
+            if(string.IsNullOrEmpty(_options.ApiUrl))
+                yield break;
+
+            var data = JsonUtility.ToJson(exports, false);
+
+            var webRequest = new UnityWebRequest(_options.ApiUrl, "POST");
+            byte[] jsonToSend = new System.Text.UTF8Encoding().GetBytes(data);
+            webRequest.uploadHandler = (UploadHandler)new UploadHandlerRaw(jsonToSend);
+            webRequest.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
+            webRequest.SetRequestHeader("Content-Type", "application/json");
+
+            //add authorize option
+            if (!string.IsNullOrEmpty(_options.AuthHeader))
+            {
+                webRequest.SetRequestHeader("Authorization", _options.AuthHeader);
+            }
+
+            yield return webRequest.SendWebRequest();
+
+            if (webRequest.result == UnityEngine.Networking.UnityWebRequest.Result.ConnectionError || webRequest.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
+            {
+                var text = "";
+                if (webRequest.downloadHandler != null)
+                {
+                    text = webRequest.downloadHandler.text;
+                }
+
+                Debug.LogError(webRequest.responseCode + " e:" + webRequest.error + "body: " + text);
+            }
+        }
+
+        public override void ForceFlush()
+        {
+            return;
+        }
+
+        public override void Shutdown()
+        {
+            return;
+        }
+
+        SpanExport? SpanToExport(TelemetrySpan span)
+        {
+            if(span.EndTime == null)
+                return null;
+
+            var export = new SpanExport()
+            {
+                TraceId = span.SpanContext.TraceId.ToString(),
+                SpanId = span.SpanContext.SpanId.ToString(),
+                Name = span.Name,
+                ParentId = span.ParentSpan?.SpanId.ToString(),
+                StartTime = span.StartTime.Time,
+                EndTime = span.EndTime.Value.Time,
+                Events = new List<EventExport>(),
+                Attributes = new List<AttributeExport>(),
+            };
+
             for (int cnt = 0; cnt < span.Events.Count; cnt++)
             {
                 var ev = span.Events[cnt];
-                stringBuilder.AppendLine($"Event:{ev.Name}");
-                stringBuilder.AppendLine($"Time:{ev.Timestamp}");
+                var eExport = new EventExport()
+                {
+                    Name = ev.Name,
+                    Timestamp = ev.Timestamp.Time,
+                    Attributes = new List<AttributeExport>(),
+                };
+                export.Events.Add(eExport);
+                ExportAttributes(ev.Attributes, eExport.Attributes);
+
             }
 
-            foreach (var attr in span.Attributes)
-            {
-                stringBuilder.AppendLine($"Attr:{attr.Key}, {attr.Value}");
-            }
+            ExportAttributes(span.Attributes, export.Attributes);
 
+            return export;
         }
 
-
+        void ExportAttributes(Dictionary<string,object> attributes, List<AttributeExport> exports)
+        {
+            foreach (var attr in attributes)
+            {
+                var aExport = new AttributeExport()
+                {
+                    Key = attr.Key,
+                    Value = attr.Value.ToString(),
+                };
+                exports.Add(aExport);
+            }
+        }
 
     }
 }

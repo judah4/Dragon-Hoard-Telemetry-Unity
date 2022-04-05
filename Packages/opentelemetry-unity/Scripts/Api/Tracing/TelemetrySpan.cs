@@ -57,8 +57,8 @@ namespace OpenTelemetry.Unity
 
         public SpanContext? ParentSpan { get; private set; }
         public SpanKind SpanKind { get; private set; }
-        public Timestamp Start { get; private set; }
-        public Timestamp? End { get; private set; }
+        public Timestamp StartTime { get; private set; }
+        public Timestamp? EndTime { get; private set; }
 
         public Dictionary<string,object> Attributes { get; private set; }
         public List<SpanLink> Links { get; private set; }
@@ -76,7 +76,7 @@ namespace OpenTelemetry.Unity
                 SpanKind = spanKind,
                 Attributes = attributes,
                 Links = links,
-                Start = start,
+                StartTime = start,
                 Events = new List<SpanEvent>(),
                 Status = SpanStatus.Unset,
                 _tracer = tracer,
@@ -85,11 +85,11 @@ namespace OpenTelemetry.Unity
             return ev;
         }
 
-        public void SetEnd()
+        public void End()
         {
-            if(End.HasValue)
+            if(EndTime.HasValue)
                 return;
-            End = Timestamp.Create();
+            EndTime = Timestamp.Create();
 
             _tracerProvider.EndSpan(this);
         }

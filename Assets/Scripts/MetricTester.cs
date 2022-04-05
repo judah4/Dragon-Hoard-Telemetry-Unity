@@ -8,22 +8,34 @@ namespace OpenTelemetry.Unity.Examples
 
     public class MetricTester : MonoBehaviour
     {
+        [SerializeField]
+        private SimpleTelemetryConfig _config;
+
         // Start is called before the first frame update
         void Start()
         {
             Init();
         }
 
-        // Update is called once per frame
-        void Update()
-        {
-        
-        }
-
         public void Init()
         {
-            var exporter = new DebugExporter();
-            var tracerProvider = new TracerProvider();
+
+            var jsonOptions = new JsonExporterOptions()
+            {
+                WriteToApi = false,
+                WriteToFile = true,
+            };
+            if(_config)
+            {
+                jsonOptions.WriteToApi = _config.WriteToApi;
+                jsonOptions.ApiUrl = _config.ApiUrl;
+                jsonOptions.AuthHeader = _config.AuthHeader;
+            }
+
+            var tracerProvider = TracerProvider.Create(new List<SpanProcessor>() {
+                new SpanProcessor(new DebugExporter()),
+                new BatchSpanProcessor(new JsonExporter(jsonOptions)),
+            });
 
             var tracer = tracerProvider.GetTracer(nameof(MetricTester));
 
@@ -32,13 +44,10 @@ namespace OpenTelemetry.Unity.Examples
 
             var span2 = tracer.GetSpan("Another Span", span.SpanContext);
             span2.Events.Add(SpanEvent.Create("Wow, event", Timestamp.Create()));
-            span2.SetEnd();
+            span2.End();
 
-            span.SetEnd();
+            span.End();
 
-            exporter.WriteTracer(tracer);
-
-            //print?
         }
     }
 }
