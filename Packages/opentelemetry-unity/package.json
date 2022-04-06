@@ -1,4 +1,6 @@
 {
-	"name":"opentelemetry",
-	"version": "0.1.0"
+  "name": "judahperez.telemetry-unity",
+  "version": "0.1.0",
+  "displayName": "Telemetry For Games",
+  "description": "Telemetry for games! Tracing and metrics for tracking user actions. \nCan be used for both server and client."
 }

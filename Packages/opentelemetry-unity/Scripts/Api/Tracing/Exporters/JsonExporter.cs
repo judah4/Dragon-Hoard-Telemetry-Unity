@@ -118,16 +118,17 @@ namespace OpenTelemetry.Unity
                         writer.WriteLine("[");
                     }
                 }
-
-                foreach(var span in exports.Spans)
+                using (var writer = System.IO.File.AppendText(fullPath))
                 {
-                    var data = JsonUtility.ToJson(span);
-                    using (var writer = System.IO.File.AppendText(fullPath))
+                    foreach (var span in exports.Spans)
                     {
+                        var data = JsonUtility.ToJson(span);
+
                         writer.Write(data);
                         writer.WriteLine(",");
                     }
                 }
+
 
             }
             catch (System.Exception e)

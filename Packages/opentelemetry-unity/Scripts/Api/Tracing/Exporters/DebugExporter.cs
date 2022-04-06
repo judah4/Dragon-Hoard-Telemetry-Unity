@@ -9,14 +9,16 @@ namespace OpenTelemetry.Unity
     {
         public override void Export(List<TelemetrySpan> spans)
         {
-            StringBuilder stringBuilder = new StringBuilder();
+            if(spans.Count < 1)
+                return;
 
             for (int cnt = 0; cnt < spans.Count; cnt++)
             {
+                StringBuilder stringBuilder = new StringBuilder();
                 WriteSpan(stringBuilder, spans[cnt]);
+                Debug.Log(stringBuilder.ToString());
             }
 
-            Debug.Log(stringBuilder.ToString());
         }
 
         public override void ForceFlush()

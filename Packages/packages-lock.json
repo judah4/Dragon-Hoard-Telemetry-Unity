@@ -91,7 +91,7 @@
         "com.unity.modules.imgui": "1.0.0"
       }
     },
-    "opentelemetry": {
+    "judahperez.telemetry-unity": {
       "version": "file:opentelemetry-unity",
       "depth": 0,
       "source": "embedded",

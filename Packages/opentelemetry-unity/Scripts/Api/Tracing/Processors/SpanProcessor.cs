@@ -13,6 +13,8 @@ namespace OpenTelemetry.Unity
 
         protected List<TelemetrySpan> _sendList = new List<TelemetrySpan>();
 
+        protected TracerProvider _tracerProvider;
+
         public SpanProcessor(BaseExporter exporter)
         {
             _exporter = exporter;
@@ -41,15 +43,17 @@ namespace OpenTelemetry.Unity
             return ForceFlush();
         }
 
-        public virtual void Tick()
-        {
-
-        }
-
         internal void Init(TracerProvider tracerProvider)
         {
+            _tracerProvider = tracerProvider;
             //set
             _exporter.Init(tracerProvider);
+            OnInit();
+        }
+
+        protected virtual void OnInit()
+        {
+
         }
     }
 }
