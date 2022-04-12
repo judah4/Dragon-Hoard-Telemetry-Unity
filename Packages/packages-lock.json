@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.unity.collab-proxy": {
-      "version": "1.15.13",
+      "version": "1.15.16",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -26,7 +26,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.visualstudio": {
-      "version": "2.0.14",
+      "version": "2.0.15",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -37,6 +37,13 @@
     "com.unity.ide.vscode": {
       "version": "1.2.5",
       "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.nuget.newtonsoft-json": {
+      "version": "2.0.0-preview",
+      "depth": 2,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
@@ -58,6 +65,16 @@
         "com.unity.ext.nunit": "1.0.6",
         "com.unity.modules.imgui": "1.0.0",
         "com.unity.modules.jsonserialize": "1.0.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.test-framework.performance": {
+      "version": "2.2.0-preview",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.0",
+        "com.unity.nuget.newtonsoft-json": "2.0.0-preview"
       },
       "url": "https://packages.unity.com"
     },
@@ -96,6 +113,17 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {}
+    },
+    "judahperez.telemetry-unity.tests": {
+      "version": "file:opentelemetry-unity.tests",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {
+        "judahperez.telemetry-unity": "0.4.0",
+        "com.unity.ext.nunit": "1.0.0",
+        "com.unity.test-framework": "1.1.14",
+        "com.unity.test-framework.performance": "2.2.0-preview"
+      }
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

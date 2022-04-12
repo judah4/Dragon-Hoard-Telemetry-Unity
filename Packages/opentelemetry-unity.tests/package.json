@@ -1,0 +1,12 @@
+{
+  "name": "judahperez.telemetry-unity.tests",
+  "displayName": "Telemetry For Games Tests",
+  "version": "0.1.0",
+  "description": "Telemetry for games tests.",
+  "dependencies": {
+    "judahperez.telemetry-unity": "0.4.0",
+    "com.unity.ext.nunit": "1.0.0",
+    "com.unity.test-framework": "1.1.14",
+    "com.unity.test-framework.performance": "2.2.0-preview"
+  }
+}
