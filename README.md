@@ -1,5 +1,5 @@
-# Telemetry
-Telemetry  for Unity. Working on getting to spec compliance for [OpenTelemetry](https://opentelemetry.io/)
+# Dragon Hoard Telemetry for Unity
+Telemetry for Unity. Working on getting to spec compliance for [OpenTelemetry](https://opentelemetry.io/)
 
 # Usage
 
