@@ -178,7 +178,7 @@ namespace OpenTelemetry.Unity
                     text = webRequest.downloadHandler.text;
                 }
 
-                Debug.LogError(webRequest.responseCode + " e:" + webRequest.error + "body: " + text);
+                Debug.LogError(webRequest.responseCode + " e:" + webRequest.error + " body: " + text);
             }
         }
 
