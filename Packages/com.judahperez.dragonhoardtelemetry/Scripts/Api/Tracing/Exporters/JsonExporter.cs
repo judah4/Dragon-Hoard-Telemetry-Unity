@@ -86,7 +86,10 @@ namespace OpenTelemetry.Unity
 
             }
 
-            if(_options.WriteToFile)
+            if (exports == null || exports.Spans.Count == 0)
+                return;
+
+            if (_options.WriteToFile)
             {
                 WriteToFile(exports);
             }
@@ -148,6 +151,8 @@ namespace OpenTelemetry.Unity
         {
             if(_options.PrivacyOptOut || string.IsNullOrEmpty(_options.ApiUrl))
                 yield break;
+            if (exports == null || exports.Spans.Count == 0)
+                yield break;
 
             var data = JsonUtility.ToJson(exports, false);
 
@@ -184,7 +189,7 @@ namespace OpenTelemetry.Unity
 
         public override void Shutdown()
         {
-            if (_options.WriteToFile || string.IsNullOrEmpty(_options.FileName))
+            if (!_options.WriteToFile || string.IsNullOrEmpty(_options.FileName))
                 return;
 
             var fullPath = System.IO.Path.Combine(Application.persistentDataPath, _options.FileName);
