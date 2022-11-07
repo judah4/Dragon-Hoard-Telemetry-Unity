@@ -27,7 +27,6 @@ namespace OpenTelemetry.Unity.Examples
             _jsonOptions = new JsonExporterOptions()
             {
                 WriteToApi = false,
-                WriteToFile = true,
             };
             if(_config)
             {
@@ -39,6 +38,7 @@ namespace OpenTelemetry.Unity.Examples
             _tracerProvider = TracerProvider.Create(new List<SpanProcessor>() {
                 new SpanProcessor(new DebugExporter()),
                 new BatchSpanProcessor(new JsonExporter(_jsonOptions)),
+                new BatchSpanProcessor(new FileLogExporter(new FileLogExporterOptions() { })),
             });
 
         }

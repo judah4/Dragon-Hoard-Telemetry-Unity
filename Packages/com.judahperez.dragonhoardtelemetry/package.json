@@ -1,6 +1,7 @@
 {
   "name": "com.judahperez.dragonhoardtelemetry",
   "displayName": "Dragon Hoard Telemetry For Games",
-  "version": "0.1.0",
-  "description": "Telemetry for games! Tracing and metrics for tracking user actions. \nCan be used for both server and client."
+  "version": "0.2.0",
+  "description": "Telemetry for games! Tracing and metrics for tracking user actions. \nCan be used for both server and client.",
+  "type": "library"
 }

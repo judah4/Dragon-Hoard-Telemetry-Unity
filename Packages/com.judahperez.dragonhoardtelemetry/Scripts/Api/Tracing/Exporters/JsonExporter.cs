@@ -45,8 +45,6 @@ namespace OpenTelemetry.Unity
 
     public class JsonExporterOptions
     {
-        public bool WriteToFile { get; set; }
-        public string FileName { get; set; } = $"exports/spanexports{System.DateTime.UtcNow.ToString("yyyy-MM-dd-HH-mm-ss")}.json";
         public bool WriteToApi { get; set; }
         public string ApiUrl { get; set; }
         public string AuthHeader { get; set; }
@@ -63,7 +61,6 @@ namespace OpenTelemetry.Unity
             {
                 options = new JsonExporterOptions()
                 {
-                    WriteToFile = true,
                 };
             }
             _options = options;
@@ -89,10 +86,6 @@ namespace OpenTelemetry.Unity
             if (exports == null || exports.Spans.Count == 0)
                 return;
 
-            if (_options.WriteToFile)
-            {
-                WriteToFile(exports);
-            }
             if (_options.WriteToApi)
             {
                 WriteToApi(exports);
@@ -102,43 +95,6 @@ namespace OpenTelemetry.Unity
             //Debug.Log(data);
         }
 
-        private void WriteToFile(SpansExport exports)
-        {
-
-            try
-            {
-                if (string.IsNullOrEmpty(_options.FileName))
-                    return;
-
-                var fullPath = System.IO.Path.Combine(Application.persistentDataPath, _options.FileName);
-                var subPath = System.IO.Path.GetDirectoryName(fullPath);
-                System.IO.Directory.CreateDirectory(subPath);
-
-                if(System.IO.File.Exists(fullPath) == false)
-                {
-                    using (var writer = System.IO.File.AppendText(fullPath))
-                    {
-                        writer.WriteLine("[");
-                    }
-                }
-                using (var writer = System.IO.File.AppendText(fullPath))
-                {
-                    foreach (var span in exports.Spans)
-                    {
-                        var data = JsonUtility.ToJson(span);
-
-                        writer.Write(data);
-                        writer.WriteLine(",");
-                    }
-                }
-
-
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogException(e);
-            }
-        }
         private void WriteToApi(SpansExport exports)
         {
             if (_options.PrivacyOptOut || string.IsNullOrEmpty(_options.ApiUrl))
@@ -189,21 +145,7 @@ namespace OpenTelemetry.Unity
 
         public override void Shutdown()
         {
-            if (!_options.WriteToFile || string.IsNullOrEmpty(_options.FileName))
-                return;
-
-            var fullPath = System.IO.Path.Combine(Application.persistentDataPath, _options.FileName);
-            var subPath = System.IO.Path.GetDirectoryName(fullPath);
-            System.IO.Directory.CreateDirectory(subPath);
-
-            if (System.IO.File.Exists(fullPath))
-            {
-                using (var writer = System.IO.File.AppendText(fullPath))
-                {
-                    writer.WriteLine("]");
-                }
-            }
-
+            return;
         }
 
         SpanExport? SpanToExport(TelemetrySpan span)
